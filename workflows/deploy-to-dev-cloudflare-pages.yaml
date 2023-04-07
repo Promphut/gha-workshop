@@ -1,0 +1,26 @@
+name: Build & Deploy | Dev
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  call-workflow-frontend-export:
+    uses: LikeMeX/github-reuse-workflow/.github/workflows/static-site-export.yaml@main
+    with:
+      environment: dev
+      tag-version: develop
+
+  call-workflow-frontend-deploy:
+    needs: [call-workflow-frontend-export]
+    uses: LikeMeX/github-reuse-workflow/.github/workflows/deploy-static-cloudflare-page.yaml@main
+    with:
+      cloudflare-account-id: c33637c2d2f418489cda1f896fdadde6
+      cloudflare-page-project-name: gha-workshop
+      branch: develop
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
